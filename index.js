@@ -77,6 +77,7 @@ const github = require('@actions/github');
         console.log(`  (${step.conclusion || step.status}) ${step.name}`)
       }
     }
+    console.log('\n\n\n')
   }
 
   if (run.conclusion !== 'success') {
