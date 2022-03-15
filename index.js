@@ -80,9 +80,9 @@ const github = require('@actions/github');
   }
 
   if (run.conclusion !== 'success') {
-    core.setFailed(`Triggered workflow run failed`)
+    core.setFailed(`\nTriggered workflow run failed`)
   } else {
-    console.log(`Triggered workflow run ${run.conclusion}ed`)
+    console.log(`\nTriggered workflow run ${run.conclusion}ed`)
   }
 })().catch(err => {
   console.error(err)
