@@ -71,6 +71,12 @@ const github = require('@actions/github');
     run = await getWorkflowRun(run.id)
 
     const jobs = await listJobsForWorkflowRun(run.id)
+    for (const job of jobs) {
+      console.log(`(${job.conclusion || job.status}) ${job.name}`)
+      for (const step of job.steps) {
+        console.log(`  (${step.conclusion || step.status}) ${step.name}`)
+      }
+    }
   }
 
   if (run.conclusion !== 'success') {
