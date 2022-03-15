@@ -19,6 +19,12 @@ const github = require('@actions/github');
     }).then(({ data: { workflow_runs } }) => workflow_runs).catch(err => ([]))
   }
 
+  const getWorkflowRun = async (id) => {
+    return octokit.rest.actions.getWorkflowRun({ owner, repo, run_id: id })
+      .then(({ data }) => data)
+      .catch(err => ({}))
+  }
+
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
   // list workflows
@@ -62,8 +68,8 @@ const github = require('@actions/github');
   console.log(`Waiting for completion of ${run.html_url} with inputs:`, inputs)
 
   while (run.status !== 'completed') {
-    await sleep(3000)
-    run = await octokit.rest.actions.getWorkflowRun({ owner, repo, run_id: run.id })
+    await sleep(5000)
+    run = await getWorkflowRun(run.id)
   }
 
   if (run.status !== 'success') {
