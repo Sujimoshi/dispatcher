@@ -14,4 +14,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ${{ github.event.inputs.caller }}
-        run: sleep 30
+        run: sleep 10
