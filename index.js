@@ -72,10 +72,12 @@ const github = require('@actions/github');
     run = await getWorkflowRun(run.id)
   }
 
+  console.log(run)
+
   if (run.status !== 'success') {
-    core.setFailed(`Workflow run failed`)
+    core.setFailed(`Triggered workflow run failed`)
   } else {
-    console.log(`Workflow run ${run.status}`)
+    console.log(`Triggered workflow run ${run.status}`)
   }
 })().catch(err => {
   console.error(err)
