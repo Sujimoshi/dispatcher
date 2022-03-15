@@ -37,8 +37,8 @@ const github = require('@actions/github');
     
       for (const run of newRuns) {
         const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
-          owner, repo, run_id: run.id, filter: 'latest'
-        })
+          owner, repo, run_id: run.id
+        }).catch(err => ({ data: { jobs: [] } }))
 
         const job = jobs.find(({ name, steps }) => name.includes(marker) || steps.find(({ name }) => name.includes(marker)))
 
