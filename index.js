@@ -12,7 +12,7 @@ const github = require('@actions/github');
 
   const octokit = github.getOctokit(token);
 
-  const listWorkflowRuns = () => {
+  const listWorkflowRuns = async () => {
     const { data: { workflow_runs } } = await octokit.rest.actions.listWorkflowRuns({
       owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
     })
@@ -33,21 +33,18 @@ const github = require('@actions/github');
 
   const attempts = 30
   for (let i = 0; i < attempts; i++) {
-    const { data: { workflow_runs } } = await octokit.rest.actions.listWorkflowRuns({
-      owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
-    })
+    const runs = await listWorkflowRuns()
 
+    const newRuns = workflow_runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
     
-    const runs = workflow_runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
-    
-    if (runs.length === 0) {
+    if (newRuns.length === 0) {
       sleep(1000)
       continue
     }
 
-    console.log(runs)
+    console.log(newRuns)
   
-    for (const run of runs) {
+    for (const run of newRuns) {
       const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
         owner, repo, run_id: run.id, filter: 'latest'
       })
