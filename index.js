@@ -58,7 +58,7 @@ const github = require('@actions/github');
 
   const run = await findRun()
 
-  console.log(desiredRun)
+  console.log(run)
 })().catch(err => {
   console.error(err)
   core.setFailed(err.message)
