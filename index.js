@@ -35,7 +35,7 @@ const github = require('@actions/github');
   for (let i = 0; i < attempts; i++) {
     const runs = await listWorkflowRuns()
 
-    const newRuns = workflow_runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
+    const newRuns = runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
     
     if (newRuns.length === 0) {
       sleep(1000)
