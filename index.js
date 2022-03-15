@@ -56,7 +56,7 @@ const github = require('@actions/github');
   }
 
   const inputs = { 
-    ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {}),
+    ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: typeof value !== 'string' ? JSON.stringify(value) : value }), {}),
     [marker_input_name]: marker
   }
 
