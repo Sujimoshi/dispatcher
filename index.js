@@ -19,20 +19,26 @@ const github = require('@actions/github');
       ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {})
     }
   })
-  
-  
-  const { data: { workflow_runs } } = await octokit.rest.actions.listWorkflowRuns({
-    owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
-  })
 
-  let desired_run
-  for (const run of workflow_runs) {
-    const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
-      owner, repo, run_id: run.id, filter: 'latest'
+  const attempts = 30
+  for (let i = 0; i < attempts; i++) {
+    const { data: { workflow_runs } } = await octokit.rest.actions.listWorkflowRuns({
+      owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
     })
 
-    for (const job of jobs) {
-      console.log(job.name, job.steps)
+    console.log(workflow_runs)
+  
+    let desired_run
+    for (const run of workflow_runs) {
+      const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
+        owner, repo, run_id: run.id, filter: 'latest'
+      })
+
+      console.log(jobs)
+  
+      for (const job of jobs) {
+        console.log(job.name, job.steps)
+      }
     }
   }
 
