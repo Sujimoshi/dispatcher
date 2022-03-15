@@ -21,8 +21,7 @@ const github = require('@actions/github');
 
   const getWorkflowRun = async (id) => {
     return octokit.rest.actions.getWorkflowRun({ owner, repo, run_id: id })
-      .then(({ data }) => data)
-      .catch(err => ({}))
+      .then(({ data }) => data).catch(err => ({}))
   }
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
@@ -70,9 +69,9 @@ const github = require('@actions/github');
   while (run.status !== 'completed') {
     await sleep(5000)
     run = await getWorkflowRun(run.id)
-  }
 
-  console.log(run)
+    const jobs = await listJobsForWorkflowRun(run.id)
+  }
 
   if (run.conclusion !== 'success') {
     core.setFailed(`Triggered workflow run failed`)
