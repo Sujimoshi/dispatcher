@@ -41,8 +41,6 @@ const github = require('@actions/github');
       sleep(1000)
       continue
     }
-
-    console.log(newRuns)
   
     for (const run of newRuns) {
       const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
