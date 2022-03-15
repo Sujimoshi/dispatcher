@@ -42,7 +42,7 @@ const github = require('@actions/github');
 
         const job = jobs.find(({ name, steps }) => name.includes(marker) || steps.find(({ name }) => name.includes(marker)))
 
-        if (job) return run.id
+        if (job) return run
       }
     }
   }
@@ -56,7 +56,7 @@ const github = require('@actions/github');
     }
   })
 
-  const desiredRun = await findRun(existedRuns)
+  const run = await findRun()
 
   console.log(desiredRun)
 })().catch(err => {
