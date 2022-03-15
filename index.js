@@ -26,7 +26,7 @@ const github = require('@actions/github');
   await octokit.rest.actions.createWorkflowDispatch({
     owner, repo, ref, workflow_id: workflow,
     inputs: { 
-      [marker_input_name]: `https://github.com/${github.context.owner}/${github.context.repo}/actions/runs/${github.context.runId}`,
+      [marker_input_name]: `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
       ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {})
     }
   })
@@ -46,8 +46,6 @@ const github = require('@actions/github');
       const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
         owner, repo, run_id: run.id, filter: 'latest'
       })
-
-      console.log(jobs)
   
       for (const job of jobs) {
         console.log(job.name, job.steps)
