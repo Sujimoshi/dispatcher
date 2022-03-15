@@ -57,4 +57,7 @@ const github = require('@actions/github');
     }
   }
 
-})().catch(err => core.setFailed(err.message))
+})().catch(err => {
+  console.error(err)
+  core.setFailed(err.message)
+})
