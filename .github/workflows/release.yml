@@ -1,0 +1,35 @@
+name: Test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Test
+        uses: ./
+        with:
+          owner: sujimoshi
+          repo: dispatcher
+          ref: master
+          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          workflow: trigger.yml
+
+      - name: Semantic Release
+        uses: sujimoshi/semantic-release-action@v1.5.2
+        id: release
+    
+      - name: Publish Github Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          release_name: ${{ steps.release.outputs.name }}
+          body: ${{ steps.release.outputs.notes }}
+          draft: false
+          prerelease: ${{ !!steps.release.outputs.channel }}
