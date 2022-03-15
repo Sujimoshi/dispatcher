@@ -1,0 +1,21 @@
+name: Test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run Test
+        uses: ./
+        with:
+          owner: sujimoshi
+          repo: dispatcher
+          ref: master
+          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          workflow: trigger.yml
+          payload: '{ "author": "sujimoshi" }'

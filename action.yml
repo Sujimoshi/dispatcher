@@ -1,0 +1,30 @@
+name: Workflow Dispatcher And Waiter
+description: Run and Wait for a workflow
+inputs:
+  owner: 
+    description: Owner of Repository
+    required: true
+  repo: 
+    description: Repository name
+    required: true
+  ref: 
+    description: Branch or Tag
+    required: true
+  token: 
+    description: Personal GitHub Token
+    required: true
+  workflow: 
+    description: Workflow file name or id
+    required: true
+  payload: 
+    description: Payload for workflow (JSON string)
+    required: false
+    default: '{}'
+  marker_input_name: 
+    description: Name of the input to use as a marker
+    required: false
+    default: 'caller'
+outputs: {}
+runs:
+  using: 'node16'
+  main: 'index.js'

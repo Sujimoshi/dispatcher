@@ -1,0 +1,20 @@
+name: Test
+
+on: 
+  workflow_dispatch:
+    inputs:
+      caller:
+        description: Caller URL
+        required: false
+        default: '...'
+
+jobs:
+  test:
+    name: ${{ github.event.inputs.caller }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: ${{ github.event.inputs.caller }}
+        run: echo "Hello World"
