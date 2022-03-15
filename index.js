@@ -9,6 +9,7 @@ const github = require('@actions/github');
   const token = core.getInput('token');
   const payload = JSON.parse(core.getInput('payload') || '{}');
   const marker_input_name = core.getInput('marker_input_name') || 'caller'
+  const marker = `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`
 
   const octokit = github.getOctokit(token);
 
@@ -19,39 +20,45 @@ const github = require('@actions/github');
     return workflow_runs
   }
 
-  const existedRuns = await listWorkflowRuns()
-
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-  await octokit.rest.actions.createWorkflowDispatch({
-    owner, repo, ref, workflow_id: workflow,
-    inputs: { 
-      [marker_input_name]: `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
-      ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {})
-    }
-  })
+  // list workflows
+  const existedRuns = await listWorkflowRuns()
 
-  const attempts = 30
-  for (let i = 0; i < attempts; i++) {
-    sleep(3000)
+  const findRun = async () => {
+    const attempts = 100
+    for (let i = 0; i < attempts; i++) {
+      await sleep(3000)
+      const runs = await listWorkflowRuns()
 
-    const runs = await listWorkflowRuns()
-
-    const newRuns = runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
+      const newRuns = runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
+      
+      if (newRuns.length === 0) continue
     
-    if (newRuns.length === 0) continue
-  
-    for (const run of newRuns) {
-      const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
-        owner, repo, run_id: run.id, filter: 'latest'
-      })
-  
-      for (const job of jobs) {
-        console.log(job.name, job.steps)
+      for (const run of newRuns) {
+        const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
+          owner, repo, run_id: run.id, filter: 'latest'
+        })
+
+        const job = jobs.find(({ name, steps }) => name.includes(marker) || steps.find(({ name }) => name.includes(marker)))
+
+        if (job) return run.id
       }
     }
   }
 
+  // dispatch run
+  await octokit.rest.actions.createWorkflowDispatch({
+    owner, repo, ref, workflow_id: workflow,
+    inputs: { 
+      ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {}),
+      [marker_input_name]: marker
+    }
+  })
+
+  const desiredRun = await findRun(existedRuns)
+
+  console.log(desiredRun)
 })().catch(err => {
   console.error(err)
   core.setFailed(err.message)
