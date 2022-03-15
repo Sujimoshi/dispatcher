@@ -14,10 +14,9 @@ const github = require('@actions/github');
   const octokit = github.getOctokit(token);
 
   const listWorkflowRuns = async () => {
-    const { data: { workflow_runs } } = await octokit.rest.actions.listWorkflowRuns({
+    return octokit.rest.actions.listWorkflowRuns({
       owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
-    })
-    return workflow_runs
+    }).then(({ data: { workflow_runs } }) => workflow_runs).catch(err => ([]))
   }
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
@@ -25,7 +24,13 @@ const github = require('@actions/github');
   // list workflows
   const existedRuns = await listWorkflowRuns()
 
-  const findRun = async () => {
+  const listJobsForWorkflowRun = async (runId) => {
+    return octokit.rest.actions.listJobsForWorkflowRun({
+      owner, repo, run_id: runId
+    }).then(({ data: { jobs } }) => jobs).catch(err => ([]))
+  }
+
+  const findWorkflowRunByMarker = async (marker) => {
     const attempts = 100
     for (let i = 0; i < attempts; i++) {
       await sleep(3000)
@@ -34,11 +39,9 @@ const github = require('@actions/github');
       const newRuns = runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
       
       if (newRuns.length === 0) continue
-    
+      
       for (const run of newRuns) {
-        const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
-          owner, repo, run_id: run.id
-        }).catch(err => ({ data: { jobs: [] } }))
+        const jobs = await listJobsForWorkflowRun(run.id)
 
         const job = jobs.find(({ name, steps }) => name.includes(marker) || steps.find(({ name }) => name.includes(marker)))
 
@@ -47,18 +50,27 @@ const github = require('@actions/github');
     }
   }
 
-  // dispatch run
-  await octokit.rest.actions.createWorkflowDispatch({
-    owner, repo, ref, workflow_id: workflow,
-    inputs: { 
-      ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {}),
-      [marker_input_name]: marker
-    }
-  })
+  const inputs = { 
+    ...Object.entries(payload).reduce((acc, [key, value]) => ({ ...acc, [key]: JSON.stringify(value) }), {}),
+    [marker_input_name]: marker
+  }
 
-  const run = await findRun()
+  await octokit.rest.actions.createWorkflowDispatch({ owner, repo, ref, workflow_id: workflow, inputs })
 
-  console.log(run)
+  let run = await findWorkflowRunByMarker(marker)
+
+  console.log(`Waiting for completion of ${run.html_url} with inputs:`, inputs)
+
+  while (run.status !== 'completed') {
+    await sleep(3000)
+    run = await octokit.rest.actions.getWorkflowRun({ owner, repo, run_id: run.id })
+  }
+
+  if (run.status !== 'success') {
+    core.setFailed(`Workflow run failed`)
+  } else {
+    console.log(`Workflow run ${run.status}`)
+  }
 })().catch(err => {
   console.error(err)
   core.setFailed(err.message)
