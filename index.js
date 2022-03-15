@@ -12,6 +12,17 @@ const github = require('@actions/github');
 
   const octokit = github.getOctokit(token);
 
+  const listWorkflowRuns = () => {
+    const { data: { workflow_runs } } = await octokit.rest.actions.listWorkflowRuns({
+      owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
+    })
+    return workflow_runs
+  }
+
+  const existedRuns = await listWorkflowRuns()
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
   await octokit.rest.actions.createWorkflowDispatch({
     owner, repo, ref, workflow_id: workflow,
     inputs: { 
@@ -26,10 +37,17 @@ const github = require('@actions/github');
       owner, repo, branch: ref, workflow_id: workflow, event: 'workflow_dispatch'
     })
 
-    console.log(workflow_runs)
+    
+    const runs = workflow_runs.filter(run => !existedRuns.find(existedRun => existedRun.id === run.id))
+    
+    if (runs.length === 0) {
+      sleep(1000)
+      continue
+    }
+
+    console.log(runs)
   
-    let desired_run
-    for (const run of workflow_runs) {
+    for (const run of runs) {
       const { data: { jobs } } = await octokit.rest.actions.listJobsForWorkflowRun({
         owner, repo, run_id: run.id, filter: 'latest'
       })
