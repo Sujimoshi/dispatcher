@@ -28,12 +28,5 @@ outputs: {}
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.owner }}/${{ inputs.repo }}
-    - ${{ inputs.ref }}
-    - ${{ inputs.token }}
-    - ${{ inputs.workflow }}
-    - ${{ toJSON(inputs.payload) }}
-    - ${{ inputs.marker_input_name }}
-    # - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  args: []
     

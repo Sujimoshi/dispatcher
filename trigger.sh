@@ -1,16 +1,15 @@
-#!/bin/sh -l
+#!/bin/bash -l
 
 env
 
-REPO="$1"
-REF="$2"
-TOKEN="$3"
-WORKFLOW="$4"
-PAYLOAD="$5"
-MARKER="$6"
-CALLER="https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}"
+REPO="$INPUT_OWNER/$INPUT_REPO"
+REF="$INPUT_REF"
+WORKFLOW="$INPUT_WORKFLOW"
+PAYLOAD="$INPUT_PAYLOAD"
+MARKER="$INPUT_MARKER_INPUT_NAME"
+CALLER="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_JOB"
 
-export GH_TOKEN="$TOKEN"
+export GH_TOKEN="$INPUT_TOKEN"
 
 OLD_RUNS=$(gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId')
 
