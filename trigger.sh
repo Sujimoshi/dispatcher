@@ -1,9 +1,5 @@
 #!/bin/sh -l
 
-env
-
-gh version
-
 REPO="$INPUT_OWNER/$INPUT_REPO"
 REF="$INPUT_REF"
 WORKFLOW="$INPUT_WORKFLOW"
@@ -27,7 +23,9 @@ echo $CONFIG | gh workflow run $WORKFLOW --json --ref $REF -R $REPO
 for i in {1..30}; do
   NEW_RUNS=$(gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId')
   DIFF_RUNS=$(for i in $NEW_RUNS; do echo $OLD_RUNS | grep -q $i || echo $i; done)
+  echo "DIFF_RUNS: '$DIFF_RUNS'"
   RUN=$(for RUN_ID in $DIFF_RUNS; do gh run view $RUN_ID -R $REPO -v | grep -q $CALLER && echo $RUN_ID; done)
+  echo "RUN: '$DIFF_RUNS'"
   [[ "$RUN" != ''  ]] && break || sleep 3
 done
 
