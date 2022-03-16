@@ -28,7 +28,7 @@ for i in {1..30}; do
   echo "DIFF_RUNS: '$DIFF_RUNS'"
   RUN=$(for RUN_ID in $DIFF_RUNS; do gh run view $RUN_ID -R $REPO -v | grep -q $CALLER && echo $RUN_ID; done)
   echo "RUN: '$DIFF_RUNS' '$([[ "$RUN" != ''  ]] && echo 'break' || echo 'sleep')'"
-  [[ "$RUN" != ''  ]] && break || sleep 3
+  if [[ "$RUN" != ''  ]]; then break; else sleep 3; fi
 done
 
 echo "Watching for https://github.com/$REPO/actions/runs/$RUN"
