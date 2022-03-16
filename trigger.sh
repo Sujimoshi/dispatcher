@@ -9,18 +9,17 @@ REF="$INPUT_REF"
 WORKFLOW="$INPUT_WORKFLOW"
 PAYLOAD="$INPUT_PAYLOAD"
 MARKER="$INPUT_MARKER_INPUT_NAME"
-CALLER="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_JOB"
+CALLER="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
 export GH_TOKEN="$INPUT_TOKEN"
 
 OLD_RUNS=$(gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId')
 
-
 CONFIG=`node -e "console.log(JSON.stringify({ 
   ...Object.entries($PAYLOAD).reduce((acc, [key, value]) => ({ 
     ...acc, [key]: typeof value !== 'string' ? JSON.stringify(value) : value 
   }), {}),
-  ['$MARKER']: '$CALLER'
+  '$MARKER': '$CALLER'
 }))"`
 
 echo $CONFIG | gh workflow run $WORKFLOW --json --ref $REF -R $REPO
