@@ -9,7 +9,7 @@ CALLER="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
 export GH_TOKEN="$INPUT_TOKEN"
 
-OLD_RUNS=$(gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId')
+OLD_RUNS=`gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId'`
 
 CONFIG=`node -e "console.log(JSON.stringify({ 
   ...Object.entries($PAYLOAD).reduce((acc, [key, value]) => ({ 
