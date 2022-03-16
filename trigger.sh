@@ -2,6 +2,8 @@
 
 env
 
+gh version
+
 REPO="$INPUT_OWNER/$INPUT_REPO"
 REF="$INPUT_REF"
 WORKFLOW="$INPUT_WORKFLOW"
@@ -13,11 +15,12 @@ export GH_TOKEN="$INPUT_TOKEN"
 
 OLD_RUNS=$(gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId')
 
+
 CONFIG=`node -e "console.log(JSON.stringify({ 
   ...Object.entries($PAYLOAD).reduce((acc, [key, value]) => ({ 
     ...acc, [key]: typeof value !== 'string' ? JSON.stringify(value) : value 
   }), {}),
-  ['$MARKER']: marker
+  ['$MARKER']: '$CALLER'
 }))"`
 
 echo $CONFIG | gh workflow run $WORKFLOW --json --ref $REF -R $REPO
