@@ -35,5 +35,5 @@ runs:
     - ${{ inputs.workflow }}
     - ${{ toJSON(inputs.payload) }}
     - ${{ inputs.marker_input_name }}
-    - https://github.com/${{ github.repository }}/actions/runs/${github.run_id}
+    # - https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
     

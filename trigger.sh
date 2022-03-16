@@ -1,12 +1,14 @@
 #!/bin/sh -l
 
+env
+
 REPO="$1"
 REF="$2"
 TOKEN="$3"
 WORKFLOW="$4"
 PAYLOAD="$5"
 MARKER="$6"
-CALLER="$7"
+CALLER="https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}"
 
 export GH_TOKEN="$TOKEN"
 
