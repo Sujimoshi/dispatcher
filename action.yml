@@ -26,5 +26,7 @@ inputs:
     default: 'caller'
 outputs: {}
 runs:
-  using: 'node16'
-  main: 'index.js'
+  using: 'docker'
+  image: 'Dockerfile'
+  args: []
+    
