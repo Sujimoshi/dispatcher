@@ -9,3 +9,6 @@ jobs:
       - name: 'Test'
         run: |
           echo '::notice::This is a warning'
+
+      - name: Sleep
+        run: sleep 100
