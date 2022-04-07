@@ -8,4 +8,4 @@ jobs:
     steps:
       - name: 'Test'
         run: |
-          echo '::warning::This is a warning'
+          echo '::notice::This is a warning'
