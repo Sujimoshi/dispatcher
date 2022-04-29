@@ -29,4 +29,4 @@ done
 
 echo -e "\nWatching for https://github.com/$REPO/actions/runs/$RUN\n"
 
-gh run watch -R "$REPO" --exit-status "$RUN"
+gh run watch -R "$REPO" --exit-status "$RUN" > /dev/null
