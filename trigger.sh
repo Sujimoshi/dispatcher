@@ -27,6 +27,9 @@ for i in `seq 1 30`; do
   [[ "$RUN" != ''  ]] && break || sleep 5
 done
 
-echo -e "\nWatching for https://github.com/$REPO/actions/runs/$RUN\n"
+gh run watch -R "$REPO" --exit-status "$RUN" > /dev/null &
 
-gh run watch -R "$REPO" --exit-status "$RUN" > /dev/null
+while ps -p $! &> /dev/null; do 
+  echo "Watching for https://github.com/$REPO/actions/runs/$RUN"
+  sleep 5
+done
