@@ -21,8 +21,7 @@ CONFIG=`node -e "console.log(JSON.stringify({
 
 echo "$CONFIG" | gh workflow run "$WORKFLOW" --json --ref "$REF" -R "$REPO"
 
-if ["$WAIT" = "true"]; then
-
+if [[ "$WAIT" == "true" ]]; then
   for i in `seq 1 30`; do
     NEW_RUNS=$(gh run list -w $WORKFLOW -R $REPO --json databaseId -q '.[].databaseId')
     DIFF_RUNS=`for RID in $NEW_RUNS; do echo $OLD_RUNS | grep -q $RID || echo $RID; done`
@@ -33,5 +32,4 @@ if ["$WAIT" = "true"]; then
   echo -e "\nWatching for https://github.com/$REPO/actions/runs/$RUN\n"
 
   gh run watch -R "$REPO" --exit-status "$RUN"
-
 fi
