@@ -19,6 +19,16 @@ jobs:
           token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
           workflow: trigger.yml
 
+      - name: Test
+        uses: ./
+        with:
+          owner: sujimoshi
+          repo: dispatcher
+          ref: master
+          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          workflow: trigger.yml
+          wait: false
+
       - name: Semantic Release
         uses: sujimoshi/semantic-release-action@v1.5.2
         id: release
